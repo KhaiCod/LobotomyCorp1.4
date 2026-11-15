@@ -9,6 +9,7 @@ using Terraria;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Audio;
 using static LobotomyCorp.LobotomyCorp;
 using static Terraria.Player;
 
@@ -75,10 +76,30 @@ namespace LobotomyCorp.Projectiles.Realized
                         owner.GetModPlayer<LobotomyWawPlayer>().CobaltScarConsumingDamageTaken = 0; //sets it to 0.
                         Projectile.ai[0] = 1;//tell the projectile we are grabbing something, so it doesn't kill the projectile.
                     target.dontTakeDamage = true;
+                    
                     }
                   owner.GetModPlayer<LobotomyModPlayer>().GrabEnemySetWhere(target,Vector2.Zero);//Grab the mofo
+
+
+
+            if (Timer % 10 == 0)
+            {
+
+
+				for (int i = 0; i < 4; i++)
+				{
+					Vector2 vel = new Vector2((5*(float)owner.direction), 0).RotatedBy(Main.rand.NextFloat(-0.39f,0.39f));
+					Dust d = Dust.NewDustPerfect(owner.Center, DustID.t_Flesh, vel); //replace it with brighter red.
+					d.noGravity = false;
+					//d.fadeIn = 1f;
+				}
+			}
+
+
             
                 }
+
+
 
                 if (owner.HasBuff<Buffs.CobaltScarFailedConsume>())
                   {
@@ -86,6 +107,10 @@ namespace LobotomyCorp.Projectiles.Realized
                   //the logic for failedconsume removing consuming and resetting CSConsumingDamageTaken to 0 in this outcome is in the consuming buff
                   target.dontTakeDamage = false;
                   target.life -= (int)(target.lifeMax * 0.25f); //game accurate amirite
+                  float SpitDirection = (float)owner.direction*4f;//
+                  target.velocity = new Vector2(SpitDirection, 1.5f);
+                  SoundEngine.PlaySound(new SoundStyle("LobotomyCorp/Sounds/Item/Language/Wolf_EatOut") with { Volume = 1f }, Projectile.Center);
+                  
                   Projectile.Kill(); 
 				  return;
                     
@@ -111,7 +136,7 @@ namespace LobotomyCorp.Projectiles.Realized
             
             LobCorpLight.LobItemFrame(owner, rotation, Projectile.spriteDirection);
             Projectile.rotation = rotation;
-            Projectile.spriteDirection = owner.direction; //This makes the art rotate and flip, but I
+            Projectile.spriteDirection = owner.direction; 
 
         }
 

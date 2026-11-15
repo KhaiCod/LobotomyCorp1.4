@@ -9,8 +9,10 @@ using Terraria;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Audio;
 using static LobotomyCorp.LobotomyCorp;
 using static Terraria.Player;
+using LobotomyCorp.Misc.Dusts;
 
 namespace LobotomyCorp.Projectiles.Realized
 {
@@ -29,7 +31,7 @@ namespace LobotomyCorp.Projectiles.Realized
             Projectile.penetrate = -1;
 
             Projectile.tileCollide = false;
-            Projectile.timeLeft = 26;
+            Projectile.timeLeft = 24;
             Projectile.friendly = true;
 
             Projectile.usesLocalNPCImmunity = true;
@@ -39,28 +41,42 @@ namespace LobotomyCorp.Projectiles.Realized
 
         public override void AI()
         {
+            
             Player owner = Main.player[Projectile.owner];
             owner.heldProj = Projectile.whoAmI;
+            Projectile.alpha = Projectile.alpha;
             float rotation = Projectile.velocity.ToRotation();
-            float radius = 8.65f*16f; //take horizonal size of the sheet, add about 28 pixels, then divide by 32 to get the first value.
+            float radius = 7f*16f+((float)Projectile.localAI[0]*1.05f);//take horizonal size of the sheet, add about 28 pixels, then divide by 32 to get 8.65f.
+            //float bitedustradius = 11f*16f+((float)Projectile.localAI[0]*1.05f);//jaw center is about 3 blocks out.
             //This is kinda longer then i planned, but whatever. 16 tiles.
-
+            
 
             Projectile.localAI[0]++;
 
-            if (Projectile.localAI[0] == 8)//3+3+2 (Frame 0+1+2, or the idle to anticipation, about to go into the attack.)
+            if (Projectile.localAI[0] == 1)//Bite sfx
+            {
+               SoundEngine.PlaySound(new SoundStyle("LobotomyCorp/Sounds/Item/Language/Wolf_Bite") with { Volume = 1f }, Projectile.Center);
+
+            }
+
+
+
+            if (Projectile.localAI[0] == 3)//Bite starts at tick 3-4
             {
                Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Projectile.velocity, ModContent.ProjectileType<CobaltScarRBiteHitbox>(), 1, Projectile.knockBack, Projectile.owner, 0, 0, 0);
             }
 
-            if (Projectile.localAI[0] == 10)
+            if (Projectile.localAI[0] == 5)
             {
-                 Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Projectile.velocity, ModContent.ProjectileType<CobaltScarRChompHitbox>(), Projectile.damage * 5, Projectile.knockBack, Projectile.owner, 0, 0, 0);
+                 Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Projectile.velocity, ModContent.ProjectileType<CobaltScarRChompHitbox>(), Projectile.damage * 8, Projectile.knockBack, Projectile.owner, 0, 0, 0);
 
             }
 
-            if (Projectile.Opacity < 0) {
-				Projectile.Opacity = 0;
+            if (Projectile.alpha < 0) {
+				Projectile.alpha = 0;
+			}
+            if (Projectile.alpha > 255) {
+				Projectile.alpha = 255;
 			}
 
             if (Main.myPlayer == Projectile.owner)
@@ -77,32 +93,101 @@ namespace LobotomyCorp.Projectiles.Realized
             Projectile.spriteDirection = owner.direction; 
 
             Projectile.frameCounter++;
-
-          if (Projectile.frame != 0 && Projectile.frame != 1 && Projectile.frame != 8 && Projectile.frame != 9 && Projectile.frame != 11 &&  Projectile.frame != 12 ){ //make some frames longer or shorter. 0,9 and 12 are longer while 1 is shorter.
-             if (Projectile.frameCounter >= 2) { //how long a normal frame plays. The bite (of 97) is especially fast to indicate speed.
-                Projectile.frameCounter = 0;
-                Projectile.frame = (Projectile.frame + 1) % 13; //12
-             }
-                
-            }
             
+            
+
+            if (Projectile.frame < 2)//skip to the bite
+            {
+                Projectile.frameCounter = 0;
+                Projectile.frame = 2;
+                Projectile.alpha = 155;
+
+            }
+            if ((Projectile.frame == 7 || Projectile.frame == 8 || Projectile.frame == 10 || Projectile.frame == 11 ) ) //The ending sequences get 4 frames each so it's actually kinda easy to see expressions.
+            {
+                if(Projectile.frameCounter >= 4)
+                {
+                Projectile.frameCounter = 0;
+                Projectile.frame = (Projectile.frame + 1) % 13; //8
+                }
+
+                if(Projectile.frame == 10||Projectile.frame == 11)
+                {
+                    if(Projectile.alpha >= 102)
+                    {
+                        Projectile.alpha = 102;
+                    }
+
+                    
+                }
+                else
+                {
+                    Projectile.alpha += 13;
+                }
+                Projectile.alpha += 6;
+            }
+
+          if (Projectile.frame == 3 || Projectile.frame == 4 || Projectile.frame ==5 ||  Projectile.frame ==6 ){ //make some frames longer or shorter. 0,9 and 12 are longer while 1 is shorter.
+             if (Projectile.frameCounter >= 2) { //how long a normal frame plays. The bite (of 87) is especially fast to indicate speed.
+                Projectile.frameCounter = 0;
+                Projectile.frame = (Projectile.frame + 1) % 13; //8
+
+                for (int i = 0; i < 7; i++)
+                {
+                    float DustTargetRotation = (Main.MouseWorld - owner.Center).ToRotation(); 
+                    rotation = Terraria.Utils.AngleLerp(rotation, DustTargetRotation, .2f);
+                    Vector2 vel2 = new Vector2(1, 0).RotatedBy(rotation);
+
+                    
+                    Vector2 velrandom = new Vector2(Main.rand.Next(6,125), Main.rand.Next(-33,33));
+                    Vector2 dustRotation =  velrandom.RotatedBy(Projectile.rotation);
+
+					//Vector2 vel = owner.Center + vel2 * bitedustradius;
+					Dust d = Dust.NewDustPerfect((Projectile.Center + dustRotation), 96);
+
+					d.noGravity = true;
+
+					d.fadeIn = 1f;
+
+                    d.velocity = vel2;
+
+                }
+             } 
+             Projectile.alpha -= 20;
+            }
 
             if (owner.HasBuff<Buffs.CobaltScarConsuming>() ||owner.HasBuff<Buffs.CobaltScarRecentBite>() && Projectile.frame == 7) //On the 8th frame, check for this shit.
             {
                 Projectile.frame = Projectile.frame + 3; //move to 10-12 if true.
             }
-            if ((Projectile.frame == 0 || Projectile.frame == 1) && Projectile.frameCounter >= 3) //this for 3 frame plays. The startup is a bit slower so the animation doesn't feel flat
-            {
-                Projectile.frameCounter = 0;
-                Projectile.frame = (Projectile.frame + 1) % 13; //+6
-            }
-            if ((Projectile.frame == 8 || Projectile.frame == 9 || Projectile.frame == 11 || Projectile.frame == 12) && Projectile.frameCounter >= 4) //The ending sequences get 4 frames each so it's actually kinda easy to see expressions.
-            {
-                Projectile.frameCounter = 0;
-                Projectile.frame = (Projectile.frame + 1) % 13; //+8
-            }
-            
 
+            if (Projectile.frame == 9 )
+            {
+                Projectile.alpha += 20;
+            }
+
+            if (Projectile.frame == 12 )
+            {
+                Projectile.alpha += 13; 
+                //it will not loop. 5 frames long, the image might wind up being still.
+
+            }
+
+
+            if (Projectile.frame == 2 ) {
+                Projectile.alpha -= 20;
+                if(Projectile.frameCounter >= 3)
+                {
+                Projectile.frameCounter = 0;
+                Projectile.frame = (Projectile.frame + 1) % 13; //3 } 
+                // frame 2(or the 3rd frame)
+             } 
+             }
+
+
+           
+
+        
         }
 
         public override bool? CanHitNPC(NPC target)
@@ -117,6 +202,7 @@ public override bool PreDraw(ref Color lightColor)
             Rectangle frame = tex.Frame(1, Main.projFrames[Type], 0, Projectile.frame);
             float rotation = Projectile.rotation;
             SpriteEffects sp = 0;
+            Color color = Projectile.GetAlpha(lightColor);
             
             if (Projectile.spriteDirection == -1)
             {
@@ -124,9 +210,9 @@ public override bool PreDraw(ref Color lightColor)
                 rotation += 3.14f;
             }
             
-            Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition, tex.Frame(1, Main.projFrames[Type], 0, Projectile.frame), lightColor, rotation, frame.Size() / 2f, Projectile.scale, sp);
+            Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition, tex.Frame(1, Main.projFrames[Type], 0, Projectile.frame), color, rotation, frame.Size() / 2f, Projectile.scale, sp); 
 
-
+//tex.Frame(horizontal, vertical, Starting horizontal frame, Starting vertical frame)
             return false;
         }
 

@@ -6,6 +6,7 @@ using Terraria;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Audio;
 
 namespace LobotomyCorp.Projectiles.Realized
 {
@@ -37,6 +38,11 @@ namespace LobotomyCorp.Projectiles.Realized
                 Projectile.localAI[0] = Main.rand.Next(48, 96);
                 Projectile.rotation = Main.rand.NextFloat(6.28f);
             }
+            if (Projectile.localAI[1] == 0)
+            {
+                 Projectile.localAI[1] = Main.rand.Next(1,5); //Determines a number between 1 and 4. Get 4 and it plays the sound. It gets too spammy otherwise.
+            }
+           
         }
 
 
@@ -44,14 +50,16 @@ namespace LobotomyCorp.Projectiles.Realized
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             Player player = Main.player[Projectile.owner];
+            
             if(target.HasBuff(BuffID.Bleeding))
             {
                 LobotomyGlobalNPC.CobaltScarApplyScar(target, 1, 10, 240, 480);
+
             }
 
             if(!target.HasBuff(BuffID.Bleeding))
             {
-            LobotomyGlobalNPC.CobaltScarApplyScar(target, 1, 5, 120, 240); //testing I guess.
+            LobotomyGlobalNPC.CobaltScarApplyScar(target, 1, 5, 120, 240); 
             }
 
             //Add a condition that checks if player has "CobaltScarWolf" ModBuff. If yes, apply bleeding.
@@ -59,8 +67,13 @@ namespace LobotomyCorp.Projectiles.Realized
             if(player.HasBuff<Buffs.CobaltScarWolf>()){
                 target.AddBuff(BuffID.Bleeding, 240); //4 secs of bleeding
 
-            
             }
+
+            if (Projectile.localAI[1] >= 4)
+            {
+                SoundEngine.PlaySound(new SoundStyle("LobotomyCorp/Sounds/Item/Language/Wolf_Scratch") with { Volume = 1f }, Projectile.Center);
+            }
+            
 
         }
 

@@ -78,7 +78,7 @@ namespace LobotomyCorp.Projectiles.Realized
 			int Scars = LobotomyGlobalNPC.LNPC(target).CobaltScarScarsAmount;
 
 			modifiers.FinalDamage += Scars; 
-			//Fuck it this thing does like +65 damage per scar and hits 4 times. It's a lot of damage already.
+			//Fuck it this thing does like +200 damage per scar and hits 4 times. It's a lot of damage already.
 
 
 

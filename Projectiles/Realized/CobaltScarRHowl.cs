@@ -39,7 +39,7 @@ namespace LobotomyCorp.Projectiles.Realized
 
 			if (Projectile.ai[1] % 4 == 0)
             {
-				for (int i = 0; i < 4; i++)
+				for (int i = 0; i < 8; i++)
                 {
 					Vector2 vel = new Vector2(16 + 16 * prog, 0).RotatedBy(Main.rand.NextFloat(6.28f));
 					Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.BlueMoss, vel);
@@ -47,10 +47,10 @@ namespace LobotomyCorp.Projectiles.Realized
 					d.fadeIn = 1f;
                 }
 
-				for (int i = 0; i < 8; i++)
+				for (int i = 0; i < 4; i++)
 				{
 					Vector2 vel = new Vector2(16 + 16 * prog, 0).RotatedBy(Main.rand.NextFloat(6.28f));
-					Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.RedMoss, vel);
+					Dust d = Dust.NewDustPerfect(Projectile.Center, DustID.t_Flesh, vel);
 					d.noGravity = true;
 					//d.fadeIn = 1f;
 				}
