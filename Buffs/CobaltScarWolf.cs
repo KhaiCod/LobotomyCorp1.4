@@ -15,26 +15,32 @@ namespace LobotomyCorp.Buffs
 	{
 			// DisplayName.SetDefault("Destined to be the Big Bad Wolf");
 			// Description.SetDefault("If I can fill my stomach… I’ll be satisfied…");
-			int Aura = 0;
+
 	 public override void Update(Player player, ref int buffIndex)
 	        {
 			
 			ShadowMistDust(player);
 			player.GetModPlayer<LobotomyWawPlayer>().CobaltScarWolf = true;
+            
+            int aura = player.GetModPlayer<LobotomyWawPlayer>().CobaltScarAura; //add one per tick. It automatically resets to 0 when it ends.
 			player.moveSpeed += 0.33f; //Adjust this as needed.
             player.wereWolf = true;
 			
-			if (Aura < 90)
+			if (aura <= 240)
 			{
-				Aura += 1;
+                player.GetModPlayer<LobotomyWawPlayer>().CobaltScarAura += 1;
+
+
+                
 			player.GetModPlayer<LobotomyWawPlayer>().CobaltScarMist = true; 
 			AuraBehavior shadowMist = new DarkFlameAura();
             player.GetModPlayer<LobotomyModPlayer>().CurrentAura.Add(shadowMist); //Should work.
             
-			player.endurance += 0.25f; // -25% damage taken, flat for 1.5s.
+			player.endurance += 0.20f; // Nerfed just to account for longer transformation. You can still m1 while misting about.
 
 			}
-			
+
+ 
 			}
 	
 	        private void ShadowMistDust(Player player)
