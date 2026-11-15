@@ -83,6 +83,7 @@ namespace LobotomyCorp.Players
         public float CobaltScarConsumingDamageTaken = 0;
         public bool CobaltScarWolf = false;
         public bool CobaltScarMist = false;
+        public int CobaltScarAura = 0;
 
 
         public override void ResetEffects()
@@ -121,9 +122,14 @@ namespace LobotomyCorp.Players
             SwordSharpenedDespair = false;
 
             CobaltScarConsuming = false;
+            if(!CobaltScarWolf){
+                CobaltScarAura = 0;
+                }
             CobaltScarWolf = false;
             CobaltScarMist = false;
-            //CobaltScarWolfLifeSteal = 0; Might have a use later
+
+
+            
         }
 
         public override void UpdateDead()
@@ -218,6 +224,7 @@ namespace LobotomyCorp.Players
                     SwordSharpenedImpaledReset();
                 }
             }
+  
         }
 
         public override void PostUpdate()
@@ -233,6 +240,7 @@ namespace LobotomyCorp.Players
                 if (SolemnLamentFireRate < 0)
                     SolemnLamentFireRate = 0;
             }
+
         }
 
         public override void UpdateLifeRegen()
@@ -886,6 +894,7 @@ namespace LobotomyCorp.Players
         }
 
         public bool CrimsonScarLowHealthActive => Player.statLife <= Player.statLifeMax2 / 2;
+
 
 
         public override void HideDrawLayers (PlayerDrawSet drawInfo) //Hide parts of the body or whatever
