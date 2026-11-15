@@ -666,6 +666,22 @@ namespace LobotomyCorp
 
                 spriteBatch.Draw(mark, position, mark.Frame(), Color.White, 0, mark.Frame().Size() / 2, 1f, SpriteEffects.None, 0f);
             }
+            if (CobaltScarScars && Main.LocalPlayer.HeldItem.type == ModContent.ItemType<CobaltScarR>())
+            {
+                Texture2D mark = Mod.Assets.Request<Texture2D>("Misc/Lacrations").Value; //Replace it with WillBeBadBlueMoon if you really don't like it.
+                if (npc.HasBuff(BuffID.Bleeding))
+                {
+                    mark = Mod.Assets.Request<Texture2D>("Misc/WillBeBadRedMoon").Value; 
+                }
+                else
+                {
+                   mark = Mod.Assets.Request<Texture2D>("Misc/Lacrations").Value; //here too but this code might be bloat.
+                }
+                
+                Vector2 position = npc.position - Main.screenPosition + new Vector2(npc.width / 2, - 40);
+
+                spriteBatch.Draw(mark, position, mark.Frame(), Color.White, 0, mark.Frame().Size() / 2, 1f, SpriteEffects.None, 0f);
+            }
 
             if (FragmentsFromSomewhereTentacles > 0f ||
                 FragmentsFromSomewhereEnlightenment)
