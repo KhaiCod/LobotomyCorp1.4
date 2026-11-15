@@ -59,7 +59,7 @@ namespace LobotomyCorp.Items.Ruina.Language
         {
 			if (player.altFunctionUse == 2 && !player.HasBuff<Buffs.CobaltScarFailedConsume>() && !player.HasBuff<Buffs.CobaltScarConsuming>() && !player.HasBuff<Buffs.CobaltScarWolf>()&& !player.HasBuff<Buffs.CobaltScarRecentBite>())
 			{
-				return 0.3f; //yes the bite is slow as shit. 26 frames.
+				return 0.13f; //yes the bite is slow as shit to reload. 1 second if you miss.
 			}
             else if (player.altFunctionUse == 2 && player.HasBuff<Buffs.CobaltScarWolf>() && !player.HasBuff<Buffs.CobaltScarRecentHowl>())
             {
@@ -83,7 +83,6 @@ namespace LobotomyCorp.Items.Ruina.Language
                 knockback = 0f;
                 type = ModContent.ProjectileType<Projectiles.Realized.CobaltScarRBite1>(); //this will spawn x than
             }
-
 			else if (player.altFunctionUse == 2 && player.HasBuff<Buffs.CobaltScarWolf>() && !player.HasBuff<Buffs.CobaltScarRecentHowl>())
             {
 				
@@ -93,6 +92,7 @@ namespace LobotomyCorp.Items.Ruina.Language
                 type = ModContent.ProjectileType<Projectiles.Realized.CobaltScarRHowl>(); //Spawns the spawner projectile.
                 player.AddBuff(ModContent.BuffType<Buffs.CobaltScarRecentHowl>(), 480);
 			}
+ 
             base.ModifyShootStats(player, ref position, ref velocity, ref type, ref damage, ref knockback);
   
         }
@@ -104,7 +104,18 @@ namespace LobotomyCorp.Items.Ruina.Language
 
         public override bool AltFunctionUse(Player player)
         {
-            return true;
+            if((!player.HasBuff<Buffs.CobaltScarFailedConsume>() && !player.HasBuff<Buffs.CobaltScarConsuming>() && !player.HasBuff<Buffs.CobaltScarRecentBite>()&& !player.HasBuff<Buffs.CobaltScarWolf>()))
+            {
+                return true;
+            }
+            else if((!player.HasBuff<Buffs.CobaltScarRecentHowl>() && player.HasBuff<Buffs.CobaltScarWolf>())){
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
         }
 
 
@@ -132,12 +143,13 @@ namespace LobotomyCorp.Items.Ruina.Language
 
             if (WolfSated >= 4 && !player.HasBuff<Buffs.CobaltScarFailedConsume>()&& !player.HasBuff<Buffs.CobaltScarRecentBite>())
             {
+                SoundEngine.PlaySound(new SoundStyle("LobotomyCorp/Sounds/Item/Language/Wolf_FogChange") with { Volume = 1f }, player.Center);
 
-                player.AddBuff(ModContent.BuffType<Buffs.CobaltScarWolf>(), 1290);
+                player.AddBuff(ModContent.BuffType<Buffs.CobaltScarWolf>(), 1440);//4 second long transformation sequence?
                 
 
                 //Add Howl Here.
-                player.AddBuff(ModContent.BuffType<Buffs.CobaltScarRecentHowl>(), 180); // Lower CD for this one.
+                player.AddBuff(ModContent.BuffType<Buffs.CobaltScarRecentHowl>(), 240); // Lower CD for this one.
                 WolfSated = 0;
             }
 
